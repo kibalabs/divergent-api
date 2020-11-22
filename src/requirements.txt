@@ -1,0 +1,3 @@
+fastapi==0.52.0
+uvicorn==0.11.3
+databases[mysql]==0.3.1
