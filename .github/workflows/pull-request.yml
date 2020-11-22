@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  DIRECTORY: ./app
+  DIRECTORY: ./src
 jobs:
   build-app:
     runs-on: ubuntu-latest

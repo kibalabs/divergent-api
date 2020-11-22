@@ -5,7 +5,7 @@ on:
 env:
   DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/${{ github.repository }}
   DOCKER_TAG: latest
-  DIRECTORY: ./app
+  DIRECTORY: ./src
 jobs:
   deploy-app:
     runs-on: ubuntu-latest
