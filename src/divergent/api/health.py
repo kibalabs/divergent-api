@@ -3,7 +3,7 @@ import os
 from fastapi import APIRouter
 
 
-def create_api() -> APIRouter:
+def create_api_health() -> APIRouter:
     router = APIRouter()
 
     @router.get('/')
