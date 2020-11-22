@@ -3,7 +3,7 @@ on:
   push:
     branches: [ main ]
 env:
-  DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/${{ github.repository }}
+  DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/divergent-api
   DOCKER_TAG: latest
   DIRECTORY: ./src
 jobs:
