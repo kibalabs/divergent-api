@@ -14,7 +14,12 @@ logging.basicConfig(level=logging.INFO)
 app = FastAPI()
 app.include_router(router=create_api_health())
 app.include_router(prefix='/v1', router=create_api_v1())
-app.add_middleware(CORSMiddleware, allow_credentials=True, allow_methods=['*'], allow_headers=['*'], allow_origins=[
+app.add_middleware(CORSMiddleware, allow_credentials=True, allow_methods=['*'], allow_headers=['*'], expose_headers=[
+    'X-Response-Time',
+    'X-Server',
+    'X-Server-Version',
+    'X-Kiba-Token',
+], allow_origins=[
     'https://divergent-console.kibalabs.com',
 ])
 
