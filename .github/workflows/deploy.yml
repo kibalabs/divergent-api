@@ -31,7 +31,7 @@ jobs:
           host: ${{ secrets.FREEBOX_URL }}
           username: ${{ secrets.FREEBOX_USER }}
           key: ${{ secrets.FREEBOX_SSH_KEY }}
-          envs: REPOSITORY_NAME
+          envs: DOCKER_IMAGE
           script_stop: true
           script: |
             name="divergent-api"
