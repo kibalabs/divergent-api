@@ -8,8 +8,22 @@ jobs:
     defaults:
       run:
         working-directory: ./src
+    env:
+      DOCKER_IMAGE: divergent-api-build
     steps:
     - name: Check out the repo
       uses: actions/checkout@v2
     - name: Build docker image
       run: docker build .
+    - name: Run linting
+      run: |
+        docker run --name linting $DOCKER_IMAGE python buildpy/lint.py --output-file linting-results.json --output-format annotations
+        docker cp linting:/app/linting-results.json ./linting-results.json
+    - name: Upload linting results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/linting-results.json
+        check-name: lint-package
+        fail-on-error: false
+        path-prefix: ./src/
