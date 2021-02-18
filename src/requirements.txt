@@ -5,3 +5,4 @@ databases[postgresql]==0.4.1
 click==7.1.2
 simple_chalk==0.1.0
 pylint==2.6.0
+mypy==0.800
