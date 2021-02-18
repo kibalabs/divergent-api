@@ -15,6 +15,9 @@ disable=suppressed-message,
         line-too-long,
         len-as-condition,
         consider-iterating-dictionary,
+        logging-fstring-interpolation,
+        # Below should be fixed in pylint 2.7.0(-ish) https://github.com/PyCQA/pylint/issues/3882
+        unsubscriptable-object,
 
 [REPORTS]
 reports=no
