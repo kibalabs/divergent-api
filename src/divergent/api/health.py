@@ -1,10 +1,10 @@
 import os
 
-from fastapi import APIRouter
+from core.api.kiba_router import KibaRouter
 
 
-def create_api_health() -> APIRouter:
-    router = APIRouter()
+def create_api_health() -> KibaRouter:
+    router = KibaRouter()
 
     @router.get('/')
     async def root():
