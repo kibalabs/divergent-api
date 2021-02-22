@@ -16,6 +16,7 @@ disable=suppressed-message,
         len-as-condition,
         consider-iterating-dictionary,
         logging-fstring-interpolation,
+        duplicate-code,
         # Below should be fixed in pylint 2.7.0(-ish) https://github.com/PyCQA/pylint/issues/3882
         unsubscriptable-object,
 

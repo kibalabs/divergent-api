@@ -49,13 +49,14 @@ class GitHubAnnotationsReporter(KibaReporter):
 
 class PrettyReporter(KibaReporter):
 
-    def get_summary(self, errorCount: int, warningCount: int) -> str:
+    @staticmethod
+    def get_summary(errorCount: int, warningCount: int) -> str:
         summary = ''
         if errorCount:
-            summary += chalk.red(f'{errorCount} errors');
+            summary += chalk.red(f'{errorCount} errors')
         if warningCount:
-            summary = f'{summary} and ' if summary else '';
-            summary += chalk.yellow(f'{warningCount} warnings');
+            summary = f'{summary} and ' if summary else ''
+            summary += chalk.yellow(f'{warningCount} warnings')
         return summary
 
     def create_output(self, messages: List[str]) -> str:
