@@ -60,7 +60,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         json-file-path: ./src/typing-results.json
-        check-name: lint-package
+        check-name: type-package
         fail-on-error: false
         path-prefix: ./src/
     - name: Run core typing
@@ -72,7 +72,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         json-file-path: ./src/typing-results.json
-        check-name: lint-core-package
+        check-name: type-core-package
         fail-on-error: false
         path-prefix: ./src/
     - name: Run build typing
@@ -84,6 +84,6 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         json-file-path: ./src/typing-results.json
-        check-name: lint-build-package
+        check-name: type-build-package
         fail-on-error: false
         path-prefix: ./src/
