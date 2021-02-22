@@ -51,3 +51,39 @@ jobs:
         check-name: lint-build-package
         fail-on-error: false
         path-prefix: ./src/
+    - name: Run typing
+      run: |
+        docker run --name typing $DOCKER_IMAGE python buildpy/type_check.py --directory divergent --output-file typing-results.json --output-format annotations
+        docker cp typing:/app/typing-results.json ./typing-results.json
+    - name: Upload typing results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/typing-results.json
+        check-name: type-package
+        fail-on-error: false
+        path-prefix: ./src/
+    - name: Run core typing
+      run: |
+        docker run --name typing-core $DOCKER_IMAGE python buildpy/type_check.py --directory core --output-file typing-results.json --output-format annotations
+        docker cp typing-core:/app/typing-results.json ./typing-results.json
+    - name: Upload core typing results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/typing-results.json
+        check-name: type-core-package
+        fail-on-error: false
+        path-prefix: ./src/
+    - name: Run build typing
+      run: |
+        docker run --name typing-build $DOCKER_IMAGE python buildpy/type_check.py --directory buildpy --output-file typing-results.json --output-format annotations
+        docker cp typing-build:/app/typing-results.json ./typing-results.json
+    - name: Upload build typing results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/typing-results.json
+        check-name: type-build-package
+        fail-on-error: false
+        path-prefix: ./src/

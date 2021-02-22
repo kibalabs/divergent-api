@@ -2,7 +2,7 @@ import logging
 import os
 import time
 import uuid
-from typing import Callable
+from typing import Any, Callable, Coroutine
 
 from fastapi.routing import APIRoute
 from fastapi.routing import APIRouter
@@ -25,7 +25,7 @@ class KibaRoute(APIRoute):
         response = JSONResponse(status_code=exception.statusCode, content=exception.to_dict())
         return response
 
-    def get_route_handler(self) -> Callable:
+    def get_route_handler(self) -> Callable[[Request], Coroutine[Any, Any, Response]]:  # type: ignore
         original_route_handler_func = super().get_route_handler()  # pylint: disable=invalid-name
         async def custom_route_handler(request: Request) -> Response:
             requestId = str(uuid.uuid4()).replace('-', '')

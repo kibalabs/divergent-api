@@ -65,7 +65,7 @@ class PrettyReporter(CollectingReporter):
 @click.command()
 @click.option('-d', '--directory', 'directory', required=False, type=str)
 @click.option('-o', '--output-file', 'outputFilename', required=False, type=str)
-@click.option('-o', '--output-format', 'outputFormat', required=False, type=str, default='pretty')
+@click.option('-f', '--output-format', 'outputFormat', required=False, type=str, default='pretty')
 def run(directory: str, outputFilename: str, outputFormat: str) -> None:
     currentDirectory = os.path.dirname(os.path.realpath(__file__))
     targetDirectory = os.path.abspath(directory or os.getcwd())
