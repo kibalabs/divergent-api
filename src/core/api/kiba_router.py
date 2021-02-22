@@ -36,7 +36,7 @@ class KibaRoute(APIRoute):
             except KibaException as exception:
                 logging.exception(exception)
                 response = self._convert_exception(exception=exception)
-            except RequestwwValidationError as exception:
+            except RequestValidationError as exception:
                 logging.exception(exception)
                 response = self._convert_exception(exception=KibaException(message=str(exception).replace('\n', ' '), statusCode=400, exceptionType=exception.__class__.__name__))
             except Exception as exception:  # pylint: disable=broad-except
