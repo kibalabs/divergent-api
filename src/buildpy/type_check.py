@@ -1,32 +1,53 @@
+import re
 import os
 import json
+import dataclasses
+import subprocess
 from collections import defaultdict
+from typing import List
 
 import click
-from pylint.lint import Run as run_pylint
 from pylint.reporters import CollectingReporter
 from simple_chalk import chalk
 
-class GitHubAnnotationsReporter(CollectingReporter):
+@dataclasses.dataclass
+class Message:
+    path: str
+    line: int
+    column: int
+    code: str
+    message: str
+    level: str
 
-    def create_output(self) -> str:
+class KibaReporter(CollectingReporter):
+
+    @staticmethod
+    def parse_message(rawMessage: str) -> Message:
+        match = re.match(r'(.*):(\d*):(\d*): (.*): (.*) \[(.*)\]', rawMessage)
+        if match:
+            return Message(path=match.group(1), line=int(match.group(2)), column=int(match.group(3)), code=match.group(6), message=match.group(5).strip(), level=match.group(4))
+        return Message(path='', line=0, column=0, code='unparsed', message=rawMessage.strip(), level='error')
+
+class GitHubAnnotationsReporter(KibaReporter):
+
+    def create_output(self, messages: List[str]) -> str:
         annotations = []
-        for message in self.messages:
+        parsedMessages = [self.parse_message(rawMessage=rawMessage) for rawMessage in messages if rawMessage]
+        for message in parsedMessages:
             annotation = {
-                'path': os.path.relpath(message.abspath),
+                'path': os.path.relpath(message.path) if message.path else '<unknown>',
                 'start_line': message.line,
                 'end_line': message.line,
-                'message': f'[{message.symbol}] {message.msg or ""}',
-                'annotation_level': 'warning' if message.category == 'warning' else 'failure',
+                'start_column': message.column,
+                'end_column': message.column,
+                'message': f'[{message.code}] {message.message}',
+                'annotation_level': 'note' if message.level == 'note' else ('warning' if message.level == 'warning' else 'failure'),
             }
-            if annotation['start_line'] == ['annotation.end_line']:
-                annotation['start_column'] = message.column + 1
-                annotation['end_column'] = message.column + 1
             annotations.append(annotation)
         return json.dumps(annotations)
 
 
-class PrettyReporter(CollectingReporter):
+class PrettyReporter(KibaReporter):
 
     def get_summary(self, errorCount: int, warningCount: int) -> str:
         summary = ''
@@ -37,22 +58,23 @@ class PrettyReporter(CollectingReporter):
             summary += chalk.yellow(f'{warningCount} warnings');
         return summary
 
-    def create_output(self) -> str:
+    def create_output(self, messages: List[str]) -> str:
+        parsedMessages = [self.parse_message(rawMessage=rawMessage) for rawMessage in messages if rawMessage]
         fileMessageMap = defaultdict(list)
-        for message in self.messages:
-            fileMessageMap[os.path.relpath(message.abspath)].append(message)
+        for message in parsedMessages:
+            fileMessageMap[os.path.relpath(message.path) if message.path else '<unknown>'].append(message)
         totalErrorCount = 0
         totalWarningCount = 0
         outputs = []
-        for (filePath, messages) in fileMessageMap.items():
+        for (filePath, parsedMessages) in fileMessageMap.items():
             fileOutputs = []
-            for message in messages:
-                location = chalk.grey(f'{filePath}:{message.line}:{message.column + 1}')
-                color = chalk.yellow if message.category == 'warning' else chalk.red
-                fileOutputs.append(f'{location} [{color(message.symbol)}] {message.msg}')
-            errorCount = sum(1 for message in messages if message.category != 'warning')
+            for message in parsedMessages:
+                location = chalk.grey(f'{filePath}:{message.line}:{message.column}')
+                color = chalk.yellow if message.level == 'warning' else chalk.red
+                fileOutputs.append(f'{location} [{color(message.code)}] {message.message}')
+            errorCount = sum(1 for message in parsedMessages if message.level != 'warning')
             totalErrorCount += errorCount
-            warningCount = sum(1 for message in messages if message.category == 'warning')
+            warningCount = sum(1 for message in parsedMessages if message.level == 'warning')
             totalWarningCount += warningCount
             fileOutputString = '\n'.join(fileOutputs)
             outputs.append(f'{self.get_summary(errorCount, warningCount)} in {filePath}\n{fileOutputString}\n')
@@ -64,13 +86,17 @@ class PrettyReporter(CollectingReporter):
 @click.command()
 @click.option('-d', '--directory', 'directory', required=False, type=str)
 @click.option('-o', '--output-file', 'outputFilename', required=False, type=str)
-@click.option('-o', '--output-format', 'outputFormat', required=False, type=str, default='pretty')
+@click.option('-f', '--output-format', 'outputFormat', required=False, type=str, default='pretty')
 def run(directory: str, outputFilename: str, outputFormat: str) -> None:
     currentDirectory = os.path.dirname(os.path.realpath(__file__))
     targetDirectory = os.path.abspath(directory or os.getcwd())
     reporter = GitHubAnnotationsReporter() if outputFormat == 'annotations' else PrettyReporter()
-    runOutput = run_pylint([f'--rcfile={currentDirectory}/pylintrc', targetDirectory], reporter=reporter, exit=False)
-    output = reporter.create_output()
+    messages = []
+    try:
+        subprocess.check_output(f'mypy {targetDirectory} --config-file {currentDirectory}/mypy.ini --no-color-output --no-error-summary --show-column-numbers', stderr=subprocess.STDOUT, shell=True)
+    except subprocess.CalledProcessError as exception:
+        messages = exception.output.decode().split('\n')
+    output = reporter.create_output(messages=messages)
     if outputFilename:
         with open(outputFilename, 'w') as outputFile:
             outputFile.write(output)
@@ -78,4 +104,4 @@ def run(directory: str, outputFilename: str, outputFormat: str) -> None:
         print(output)
 
 if __name__ == '__main__':
-    run()
+    run()  # pylint: disable=no-value-for-parameter
