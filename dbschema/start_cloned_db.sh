@@ -6,8 +6,10 @@ docker rm ${DB_NAME} || true
 
 echo "dumping..."
 mkdir -p ./tmp
-ssh freebox "mysqldump --databases ${DB_NAME} | gzip -9" > ./tmp/dblocal.sql.gz
+
+ssh freebox "pg_dump -x -O -Z9 -U ${REMOTE_DB_USERNAME} -h ${REMOTE_DB_HOST} -p ${REMOTE_DB_PORT} ${REMOTE_DB_NAME}" > ./tmp/dblocal.sql.gz
 gunzip -f ./tmp/dblocal.sql.gz
 
-cid=$(docker run --name ${DB_NAME} -d -p ${DB_PORT}:3306 -e MYSQL_ROOT_PASSWORD=${DB_PASSWORD} -v $(pwd)/tmp/dblocal.sql:/docker-entrypoint-initdb.d/dblocal.sql mysql:5.7.26)
+cid=$(docker run --name ${DB_NAME} -d -p ${DB_PORT}:5432 -e POSTGRES_PASSWORD=${DB_PASSWORD} -v $(pwd)/tmp/:/tmp/ postgres:12.5)
+docker exec ${cid} bash -c "exec psql -h ${DB_HOST} -U ${DB_USERNAME} -f /tmp/dblocal.sql"
 docker logs -f $cid
