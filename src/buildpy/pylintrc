@@ -1,0 +1,74 @@
+[MASTER]
+
+# http://pylint.pycqa.org/en/latest/technical_reference/features.html
+
+# pydantic: https://github.com/samuelcolvin/pydantic/issues/1961
+extension-pkg-whitelist=pydantic
+
+[MESSAGES]
+disable=suppressed-message,
+        missing-docstring,
+        locally-disabled,
+        locally-enabled,
+        file-ignored,
+        fixme,
+        line-too-long,
+        len-as-condition,
+        consider-iterating-dictionary,
+        logging-fstring-interpolation,
+        # Below should be fixed in pylint 2.7.0(-ish) https://github.com/PyCQA/pylint/issues/3882
+        unsubscriptable-object,
+
+[REPORTS]
+reports=no
+score=no
+
+[BASIC]
+good-names=_
+include-naming-hint=yes
+class-attribute-rgx=([a-z_][A-Za-z0-9]{1,30}|[A-Z_][A-Z0-9_]{1,30}|(__.*__))$
+class-attribute-name-hint=([a-z_][A-Za-z0-9]{1,30}|[A-Z_][A-Z0-9_]{1,30}|(__.*__))$
+variable-rgx=[a-z][a-zA-Z0-9]{1,50}$
+variable-name-hint=[a-z][a-zA-Z0-9]{1,50}$
+module-rgx=[a-z][a-z0-9_]*$
+module-name-hint=[a-z][a-z0-9_]*$
+class-rgx=[A-Z][a-zA-Z0-9]+$
+class-name-hint=[A-Z][a-zA-Z0-9]+$
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+const-name-hint=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+attr-rgx=[a-z_][a-zA-Z0-9]{1,50}$
+attr-name-hint=[a-z_][a-zA-Z0-9]{1,50}$
+argument-rgx=[a-z][a-zA-Z0-9]{1,30}$
+argument-name-hint=[a-z][a-zA-Z0-9]{1,30}$
+inlinevar-rgx=[a-z_][A-Za-z0-9]*$
+inlinevar-name-hint=[a-z_][A-Za-z0-9]*$
+method-rgx=[a-z_][a-z0-9_]{2,50}$
+method-name-hint=[a-z_][a-z0-9_]{2,50}$
+function-rgx=[a-z_][a-z0-9_]{2,50}$
+function-name-hint=[a-z_][a-z0-9_]{2,50}$
+no-docstring-rgx=.*
+docstring-min-length=0
+
+[FORMAT]
+ignore-long-lines=.*
+single-line-if-stmt=no
+single-line-class-stmt=no
+
+[MISCELLANEOUS]
+notes=FIXME,NOTE,TODO
+
+[SIMILARITIES]
+min-similarity-lines=4
+ignore-imports=yes
+
+[DESIGN]
+max-args=100
+max-locals=100
+max-returns=100
+max-branches=100
+max-statements=100
+max-parents=100
+max-attributes=100
+min-public-methods=0
+max-public-methods=100
+max-bool-expr=100

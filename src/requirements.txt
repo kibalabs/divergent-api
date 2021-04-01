@@ -1,3 +1,7 @@
 fastapi==0.52.0
 uvicorn==0.11.3
 databases[postgresql]==0.4.1
+# from build
+click==7.1.2
+simple_chalk==0.1.0
+pylint==2.6.2

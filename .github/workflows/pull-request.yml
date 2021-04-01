@@ -1,15 +1,53 @@
 name: Build
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ '*' ]
 jobs:
   build-app:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./src
+    env:
+      DOCKER_IMAGE: divergent-api-build
     steps:
     - name: Check out the repo
       uses: actions/checkout@v2
     - name: Build docker image
-      run: docker build .
+      run: docker build --tag $DOCKER_IMAGE .
+    - name: Run linting
+      run: |
+        docker run --name linting $DOCKER_IMAGE python buildpy/lint.py --directory divergent --output-file linting-results.json --output-format annotations
+        docker cp linting:/app/linting-results.json ./linting-results.json
+    - name: Upload linting results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/linting-results.json
+        check-name: lint-package
+        fail-on-error: false
+        path-prefix: ./src/
+    - name: Run core linting
+      run: |
+        docker run --name linting-core $DOCKER_IMAGE python buildpy/lint.py --directory core --output-file linting-results.json --output-format annotations
+        docker cp linting-core:/app/linting-results.json ./linting-results.json
+    - name: Upload core linting results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/linting-results.json
+        check-name: lint-core-package
+        fail-on-error: false
+        path-prefix: ./src/
+    - name: Run build linting
+      run: |
+        docker run --name linting-build $DOCKER_IMAGE python buildpy/lint.py --directory buildpy --output-file linting-results.json --output-format annotations
+        docker cp linting-build:/app/linting-results.json ./linting-results.json
+    - name: Upload build linting results
+      uses: kibalabs/github-action-create-annotations@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        json-file-path: ./src/linting-results.json
+        check-name: lint-build-package
+        fail-on-error: false
+        path-prefix: ./src/
